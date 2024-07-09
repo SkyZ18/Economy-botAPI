@@ -1,6 +1,7 @@
 package org.economy;
 
 import org.economy.config.JSONParserService;
+import org.economy.config.PasswordDecoder;
 import org.economy.config.SQLFileReader;
 import org.economy.connection.DatabaseConnection;
 import org.json.simple.JSONObject;
@@ -12,6 +13,7 @@ public class Main {
 
     private static final JSONParserService parser = new JSONParserService();
     private static final SQLFileReader sqlReader = new SQLFileReader();
+    private static final PasswordDecoder decoder = new PasswordDecoder();
     private static final JSONObject obj = parser.readJSON();
 
     public static void main(String[] args) {
@@ -23,10 +25,11 @@ public class Main {
                         + "/"
                         + parser.iterator(obj, "maria-db-database");
 
-        String user = parser.iterator(obj, "maria-db-user");
-        String password = parser.iterator(obj, "maria-db-password");
-
-        DatabaseConnection dbConn = new DatabaseConnection(url, user, password);
+        DatabaseConnection dbConn = new DatabaseConnection(
+                url,
+                parser.iterator(obj, "maria-db-user"),
+                decoder.decodePassword(parser.iterator(obj, "maria-db-password"))
+        );
 
         try (Connection connection = dbConn.openConn()) {
             DatabaseMetaData metaData = connection.getMetaData();
