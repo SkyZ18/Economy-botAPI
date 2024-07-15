@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.mariadb.jdbc.MariaDbDataSource;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 @AllArgsConstructor
 public class DatabaseConnection {
@@ -18,5 +19,9 @@ public class DatabaseConnection {
         dataSource.setPassword(password);
 
         return dataSource.getConnection();
+    }
+
+    public boolean healthCheck(Connection connection) throws SQLException {
+        return connection.isClosed();
     }
 }

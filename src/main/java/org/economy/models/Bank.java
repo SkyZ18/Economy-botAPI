@@ -3,6 +3,8 @@ package org.economy.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.ResultSet;
+
 @Entity
 @Builder
 @Getter
@@ -24,4 +26,5 @@ public class Bank {
     private Double balance;
 
     private Double loan;
+
 }

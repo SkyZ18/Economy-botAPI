@@ -29,10 +29,9 @@ public class SQLFileReader {
             reader.close();
             stmt.close();
 
-            System.out.println("\nSQL Script ran successfully");
+            System.out.println("SQL Script ran successfully\n");
         } catch (Exception e) {
-            System.out.println("Error accoured: " + e);
+            System.out.println("Error: " + e);
         }
     }
-
 }

@@ -21,18 +21,17 @@ public class JSONParserService {
     }
 
     public String iterator(JSONObject obj, String searchedValue) {
-        for (Object o : obj.keySet()) {
-            if (o.equals(searchedValue)) {
-                return obj.get(o).toString();
+        for (Object key : obj.keySet()) {
+            if (key.equals(searchedValue)) {
+                return obj.get(key).toString();
 
-            } else if (obj.get(o) instanceof org.json.simple.JSONObject) {
-                String value = iterator((JSONObject) obj.get(o), searchedValue);
-                if (value != null) {
+            } else if (obj.get(key) instanceof JSONObject) {
+                String value = iterator((JSONObject) obj.get(key), searchedValue);
+                if (!value.equals("VARIABLE NOT FOUND")) {
                     return value;
                 }
             }
         }
-
-        return null;
+        return "VARIABLE NOT FOUND";
     }
 }
