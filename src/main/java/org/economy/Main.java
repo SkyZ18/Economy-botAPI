@@ -8,10 +8,11 @@ import org.economy.config.JSONParserService;
 import org.economy.config.PasswordDecoder;
 import org.economy.config.SQLFileReader;
 import org.economy.connection.DatabaseConnection;
+import org.economy.models.JSON.JSONData;
 import org.economy.models.Metadata;
 import org.economy.models.User;
-import org.json.simple.JSONObject;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -22,7 +23,7 @@ public class Main {
     private static final JSONParserService parser = new JSONParserService();
     private static final SQLFileReader sqlReader = new SQLFileReader();
     private static final PasswordDecoder decoder = new PasswordDecoder();
-    private static final JSONObject obj = parser.readJSON();
+    private static final JSONData obj = parser.readJSON();
 
     private static final UserService userService = new UserService();
     private static final CashService cashService = new CashService();
@@ -33,14 +34,14 @@ public class Main {
 
         String url =
                 "jdbc:mariadb://"
-                        + parser.iterator(obj, "maria-db-host")
-                        + parser.iterator(obj, "maria-db-port")
-                        + parser.iterator(obj, "maria-db-database");
+                        + obj.getEnv().getDb().getMariaDbHost()
+                        + obj.getEnv().getDb().getMariaDbPort()
+                        + obj.getEnv().getDb().getMariaDbDatabase();
 
         DatabaseConnection dbConn = new DatabaseConnection(
                 url,
-                parser.iterator(obj, "maria-db-user"),
-                decoder.decodePassword(parser.iterator(obj, "maria-db-password"))
+                obj.getEnv().getDb().getMariaDbUser(),
+                decoder.decodePassword(obj.getEnv().getDb().getMariaDbPassword())
         );
 
         try (Connection connection = dbConn.openConn()) {
@@ -48,8 +49,8 @@ public class Main {
 
             Metadata metadata = new Metadata(
                     connection.getCatalog(),
-                    parser.iterator(obj, "name"),
-                    parser.iterator(obj, "description"),
+                    obj.getName(),
+                    obj.getDescription(),
                     data.getDriverName(),
                     data.getDriverVersion(),
                     data.getURL(),
@@ -59,7 +60,7 @@ public class Main {
             );
 
             System.out.println(metadata.getMetadata());
-            sqlReader.runScript(connection, parser.iterator(obj, "path-to-sql"));
+            sqlReader.runScript(connection, obj.getEnv().getPathToSql());
 
             User user = User.builder()
                     .dc_tag("#123123")

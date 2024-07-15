@@ -2,13 +2,13 @@
   "name": "Economy-botAPI",
   "description": "API-Client for Economy Discord-Server",
   "env": {
-    "path-to-sql": "src/main/resources/schema.sql",
+    "pathToSql": "src/main/resources/schema.sql",
     "db": {
-      "maria-db-host": "45.142.115.15",
-      "maria-db-port": ":3306",
-      "maria-db-database": "/ECONOMY-DATA",
-      "maria-db-user": "api-client",
-      "maria-db-password": "SEtCRlRUWjNDZm9SRTQ="
+      "mariaDbHost": "45.142.115.15",
+      "mariaDbPort": ":3306",
+      "mariaDbDatabase": "/ECONOMY-DATA",
+      "mariaDbUser": "api-client",
+      "mariaDbPassword": "SEtCRlRUWjNDZm9SRTQ="
     }
   }
 }

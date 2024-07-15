@@ -1,35 +1,34 @@
 package org.economy.config;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Statement;
 
 public class SQLFileReader {
 
     public void runScript(Connection connection, String path) {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(path));
-            String line;
-            StringBuilder sb = new StringBuilder();
+        try (Statement stmt = connection.createStatement()) {
+            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("schema.sql");
+            if (inputStream == null) {
+                throw new IllegalArgumentException("File not found! your-script.sql");
+            }
+            String sqlContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
-            Statement stmt = connection.createStatement();
+            String[] sqlStatements = sqlContent.split(";");
 
-            while ((line = reader.readLine()) != null) {
-                if (line.trim().startsWith("--") || line.trim().isEmpty()) {
-                    continue;
-                }
-                sb.append(line);
-
-                if (line.trim().endsWith(";")) {
-                    stmt.execute(sb.toString());
-                    sb.setLength(0);
+            for (String sql : sqlStatements) {
+                if (!sql.trim().isEmpty()) {
+                    try {
+                        stmt.execute(sql);
+                    } catch (Exception e) {
+                        System.out.println("Error: " + e);
+                    }
                 }
             }
-            reader.close();
-            stmt.close();
 
-            System.out.println("SQL Script ran successfully\n");
+            System.out.println("SQL-Script executed");
+
         } catch (Exception e) {
             System.out.println("Error: " + e);
         }

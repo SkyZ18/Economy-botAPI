@@ -1,37 +1,21 @@
 package org.economy.config;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.economy.models.JSON.JSONData;
 
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.InputStream;
 
 public class JSONParserService {
 
-    private static final String path = "src/main/resources/config.json";
-    JSONParser parser = new JSONParser();
+    private static final String path = "config.json";
 
-    public JSONObject readJSON() {
+    public JSONData readJSON() {
         try {
-            return (JSONObject) parser.parse(new FileReader(path));
-        } catch (IOException | ParseException e) {
+            ObjectMapper mapper = new ObjectMapper();
+            InputStream iS = getClass().getClassLoader().getResourceAsStream(path);
+            return mapper.readValue(iS, JSONData.class);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public String iterator(JSONObject obj, String searchedValue) {
-        for (Object key : obj.keySet()) {
-            if (key.equals(searchedValue)) {
-                return obj.get(key).toString();
-
-            } else if (obj.get(key) instanceof JSONObject) {
-                String value = iterator((JSONObject) obj.get(key), searchedValue);
-                if (!value.equals("VARIABLE NOT FOUND")) {
-                    return value;
-                }
-            }
-        }
-        return "VARIABLE NOT FOUND";
     }
 }
