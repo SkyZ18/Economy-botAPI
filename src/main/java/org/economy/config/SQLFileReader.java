@@ -9,12 +9,14 @@ public class SQLFileReader {
 
     public void runScript(Connection connection, String path) {
         try (Statement stmt = connection.createStatement()) {
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("schema.sql");
-            if (inputStream == null) {
-                throw new IllegalArgumentException("File not found! your-script.sql");
-            }
-            String sqlContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
+            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("schema.sql");
+
+            if (inputStream == null) {
+                throw new IllegalArgumentException("File not found! schema.sql");
+            }
+
+            String sqlContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             String[] sqlStatements = sqlContent.split(";");
 
             for (String sql : sqlStatements) {

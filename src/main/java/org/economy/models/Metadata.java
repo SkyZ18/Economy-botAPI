@@ -22,7 +22,7 @@ public class Metadata {
         String status = (!this.status) ? "ONLINE" : "OFFLINE";
 
         return "Connection opened successfully to database: " + database
-                + "\n--------------------------------------------------"
+                + "\n---------------------[INFO]-----------------------"
                 + "\nMETADATA:"
                 + "\n Application name: " + appName
                 + "\n Application description: " + appDescription

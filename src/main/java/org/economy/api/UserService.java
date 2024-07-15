@@ -130,7 +130,7 @@ public class UserService {
 
     public void printAllUsers(ResultSet resultSet) {
         try {
-            System.out.println("\n--------------USERS------------");
+            System.out.println("\n--------------USER-------------");
             while (resultSet.next()) {
                 System.out.println("USER-" + resultSet.getLong(1) + ": "
                         + "\n dc-tag: " + resultSet.getString(2)
