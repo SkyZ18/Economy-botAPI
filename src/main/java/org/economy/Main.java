@@ -61,8 +61,9 @@ public class Main {
 
             System.out.println(metadata.getMetadata());
             sqlReader.runScript(connection, obj.getEnv().getPathToSql());
+            System.out.println("\nAPI running");
 
-            User user = User.builder()
+            /*User user = User.builder()
                     .dc_tag("#123123")
                     .name("testUser")
                     .build();
@@ -85,7 +86,7 @@ public class Main {
 
             cashService.removeCashAccount(connection, 1L);
             bankService.removeBankAccount(connection, 1L);
-            userService.removeUserAccount(connection, 1L);
+            userService.removeUserAccount(connection, 1L);*/
 
             while (true) {
                 if (dbConn.healthCheck(connection)) {

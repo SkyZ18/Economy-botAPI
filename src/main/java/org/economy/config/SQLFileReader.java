@@ -29,7 +29,7 @@ public class SQLFileReader {
                 }
             }
 
-            System.out.println("SQL-Script executed");
+            System.out.println("\nSQL-Script executed");
 
         } catch (Exception e) {
             System.out.println("Error: " + e);
