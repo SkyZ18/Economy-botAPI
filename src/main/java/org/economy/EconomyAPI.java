@@ -21,11 +21,9 @@ public class EconomyAPI {
     private static final JSONData obj = parser.readJSON();
     public static Connection connection;
 
-    public static void main(String[] args) {
-        run();
-    }
+    public static void main(String[] args) {}
 
-    public static void run() {
+    public static Connection run() {
         System.out.println(FigletFont.convertOneLine("ECONOMY-API"));
 
         String url =
@@ -60,16 +58,7 @@ public class EconomyAPI {
             sqlReader.runScript(connection, obj.getEnv().getPathToSql());
             System.out.println("\nAPI running");
 
-            while (true) {
-                if (dbConn.healthCheck(connection)) {
-                    try {
-                        System.out.println("Reconnect to DB");
-                        dbConn.openConn();
-                    } catch (SQLException e) {
-                        throw new SQLTimeoutException(e);
-                    }
-                }
-            }
+            return connection;
 
         } catch (Exception e) {
             throw new RuntimeException(e);
