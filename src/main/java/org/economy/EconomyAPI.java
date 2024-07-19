@@ -21,6 +21,10 @@ public class EconomyAPI {
     private static final JSONData obj = parser.readJSON();
 
     public static void main(String[] args) {
+        run();
+    }
+
+    public static void run() {
         System.out.println(FigletFont.convertOneLine("ECONOMY-API"));
 
         String url =
