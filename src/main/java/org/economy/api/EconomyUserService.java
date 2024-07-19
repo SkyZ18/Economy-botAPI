@@ -7,10 +7,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-public class UserService {
+public class EconomyUserService {
 
-    private static final BankService bankService = new BankService();
-    private static final CashService cashService = new CashService();
+    private static final EconomyBankService ECONOMY_BANK_SERVICE = new EconomyBankService();
+    private static final EconomyCashService ECONOMY_CASH_SERVICE = new EconomyCashService();
 
     public String createUser(Connection connection, User user) {
         try {
@@ -33,8 +33,8 @@ public class UserService {
 
                 pstmt.executeUpdate();
 
-                cashService.createAccount(connection, userId.getLong(1) + 1);
-                bankService.createBankAccount(connection, userId.getLong(1) + 1);
+                ECONOMY_CASH_SERVICE.createAccount(connection, userId.getLong(1) + 1);
+                ECONOMY_BANK_SERVICE.createBankAccount(connection, userId.getLong(1) + 1);
 
                 return "\nSuccessfully created user";
             } else {

@@ -2,9 +2,9 @@ package org.economy.api;
 
 import java.sql.*;
 
-public class BankService {
+public class EconomyBankService {
 
-    private static final CashService cashService = new CashService();
+    private static final EconomyCashService ECONOMY_CASH_SERVICE = new EconomyCashService();
 
     public String createBankAccount(Connection connection, Long id) {
         try {
@@ -80,7 +80,7 @@ public class BankService {
 
                 pstmt.executeUpdate();
 
-                cashService.removeMoneyFromUser(connection, id, amount);
+                ECONOMY_CASH_SERVICE.removeMoneyFromUser(connection, id, amount);
 
                 return "\nDeposited " + amount + "$";
             }
@@ -109,7 +109,7 @@ public class BankService {
 
                 pstmt.executeUpdate();
 
-                cashService.addMoneyToUser(connection, id, amount);
+                ECONOMY_CASH_SERVICE.addMoneyToUser(connection, id, amount);
 
                 return "\nWithdraw " + amount + "$";
             }

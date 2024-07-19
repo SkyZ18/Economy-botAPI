@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class CashService {
+public class EconomyCashService {
 
     public String createAccount(Connection connection, Long id) {
         try {
