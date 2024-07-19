@@ -1,5 +1,6 @@
 package org.economy.api;
 
+import org.economy.EconomyAPI;
 import org.economy.models.User;
 
 import java.sql.Connection;
@@ -12,14 +13,14 @@ public class EconomyUserService {
     private static final EconomyBankService ECONOMY_BANK_SERVICE = new EconomyBankService();
     private static final EconomyCashService ECONOMY_CASH_SERVICE = new EconomyCashService();
 
-    public String createUser(Connection connection, User user) {
-        try {
+    public String createUser(String dc_tag, String name) {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "INSERT INTO users(id, dc_tag, name) VALUES (?,?,?)";
             String checkUserSql = "SELECT * FROM users WHERE dc_tag=?";
             String sqlId = "SELECT MAX(id) FROM users";
 
             PreparedStatement pstmt = connection.prepareStatement(checkUserSql);
-            pstmt.setString(1, user.getDc_tag());
+            pstmt.setString(1, dc_tag);
 
             if(!pstmt.executeQuery().next()) {
                 ResultSet userId = connection.createStatement().executeQuery(sqlId);
@@ -28,13 +29,13 @@ public class EconomyUserService {
                 pstmt = connection.prepareStatement(sql);
 
                 pstmt.setLong(1, userId.getLong(1) + 1);
-                pstmt.setString(2, user.getDc_tag());
-                pstmt.setString(3, user.getName());
+                pstmt.setString(2, dc_tag);
+                pstmt.setString(3, name);
 
                 pstmt.executeUpdate();
 
-                ECONOMY_CASH_SERVICE.createAccount(connection, userId.getLong(1) + 1);
-                ECONOMY_BANK_SERVICE.createBankAccount(connection, userId.getLong(1) + 1);
+                ECONOMY_CASH_SERVICE.createAccount(userId.getLong(1) + 1);
+                ECONOMY_BANK_SERVICE.createBankAccount(userId.getLong(1) + 1);
 
                 return "\nSuccessfully created user";
             } else {
@@ -48,9 +49,9 @@ public class EconomyUserService {
         return "\nFailed";
     }
 
-    public ResultSet getAllUsers(Connection connection) {
+    public ResultSet getAllUsers() {
         ResultSet res = null;
-        try {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "SELECT * FROM users";
 
             Statement stmt = connection.createStatement();
@@ -62,9 +63,9 @@ public class EconomyUserService {
         return res;
     }
 
-    public ResultSet getUserById(Connection connection, Long id) {
+    public ResultSet getUserById(Long id) {
         ResultSet res = null;
-        try {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "SELECT * FROM users WHERE id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -78,9 +79,9 @@ public class EconomyUserService {
         return res;
     }
 
-    public ResultSet getUserByName(Connection connection, String name) {
+    public ResultSet getUserByName(String name) {
         ResultSet res = null;
-        try {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "SELECT * FROM users WHERE name=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -94,9 +95,9 @@ public class EconomyUserService {
         return res;
     }
 
-    public ResultSet getUserByTag(Connection connection, String tag) {
+    public ResultSet getUserByTag(String tag) {
         ResultSet res = null;
-        try {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "SELECT * FROM users WHERE dc_tag=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -110,8 +111,8 @@ public class EconomyUserService {
         return res;
     }
 
-    public String removeUserAccount(Connection connection, Long id) {
-        try {
+    public String removeUserAccount(Long id) {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "DELETE FROM users WHERE id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);

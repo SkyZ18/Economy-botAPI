@@ -1,13 +1,15 @@
 package org.economy.api;
 
+import org.economy.EconomyAPI;
+
 import java.sql.*;
 
 public class EconomyBankService {
 
     private static final EconomyCashService ECONOMY_CASH_SERVICE = new EconomyCashService();
 
-    public String createBankAccount(Connection connection, Long id) {
-        try {
+    public String createBankAccount(Long id) {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "INSERT INTO bank(id, user_id, balance, loan) VALUES(?,?,300,null)";
             String sqlId = "SELECT MAX(id) FROM bank";
 
@@ -30,9 +32,9 @@ public class EconomyBankService {
         return "\nBank-account already exists";
     }
 
-    public ResultSet returnAccountOfUser(Connection connection, Long id) {
+    public ResultSet returnAccountOfUser(Long id) {
         ResultSet res = null;
-        try {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "SELECT * FROM bank WHERE user_id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -47,8 +49,8 @@ public class EconomyBankService {
         return res;
     }
 
-    public void removeBankAccount(Connection connection, Long id) {
-        try {
+    public void removeBankAccount(Long id) {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "DELETE FROM bank WHERE user_id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -62,8 +64,8 @@ public class EconomyBankService {
         }
     }
 
-    public String depositMoneyToAccount(Connection connection, Long id, Double amount) {
-        try {
+    public String depositMoneyToAccount(Long id, Double amount) {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "UPDATE bank SET balance=balance+? WHERE user_id=?";
             String sqlBalance = "SELECT balance FROM cash WHERE user_id=?";
 
@@ -80,7 +82,7 @@ public class EconomyBankService {
 
                 pstmt.executeUpdate();
 
-                ECONOMY_CASH_SERVICE.removeMoneyFromUser(connection, id, amount);
+                ECONOMY_CASH_SERVICE.removeMoneyFromUser(id, amount);
 
                 return "\nDeposited " + amount + "$";
             }
@@ -91,8 +93,8 @@ public class EconomyBankService {
         return "\nNot enough money";
     }
 
-    public String withdrawMoneyFromAccount(Connection connection, Long id, Double amount) {
-        try {
+    public String withdrawMoneyFromAccount(Long id, Double amount) {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "UPDATE bank SET balance=balance-? WHERE user_id=?";
             String sqlBalance = "SELECT balance FROM bank WHERE user_id=?";
 
@@ -109,7 +111,7 @@ public class EconomyBankService {
 
                 pstmt.executeUpdate();
 
-                ECONOMY_CASH_SERVICE.addMoneyToUser(connection, id, amount);
+                ECONOMY_CASH_SERVICE.addMoneyToUser(id, amount);
 
                 return "\nWithdraw " + amount + "$";
             }

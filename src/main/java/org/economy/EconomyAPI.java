@@ -19,6 +19,7 @@ public class EconomyAPI {
     private static final SQLFileReader sqlReader = new SQLFileReader();
     private static final PasswordDecoder decoder = new PasswordDecoder();
     private static final JSONData obj = parser.readJSON();
+    public static Connection connection;
 
     public static void main(String[] args) {
         run();
@@ -39,7 +40,8 @@ public class EconomyAPI {
                 decoder.decodePassword(obj.getEnv().getDb().getMariaDbPassword())
         );
 
-        try (Connection connection = dbConn.openConn()) {
+        try {
+            connection = dbConn.openConn();
             DatabaseMetaData data = connection.getMetaData();
 
             Metadata metadata = new Metadata(

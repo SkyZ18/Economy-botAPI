@@ -1,13 +1,15 @@
 package org.economy.api;
 
+import org.economy.EconomyAPI;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class EconomyCashService {
 
-    public String createAccount(Connection connection, Long id) {
-        try {
+    public String createAccount(Long id) {
+        try (Connection connection = EconomyAPI.connection) {
             String sqlCash = "INSERT INTO cash(id, user_id, balance) VALUES(?,?,0)";
             String sqlIdCash = "SELECT MAX(id) FROM cash";
 
@@ -27,8 +29,8 @@ public class EconomyCashService {
         return "\nCash-account already exists";
     }
 
-    public String addMoneyToUser(Connection connection, Long id, Double amount) {
-        try {
+    public String addMoneyToUser(Long id, Double amount) {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "UPDATE cash SET balance=balance+? WHERE user_id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -42,8 +44,8 @@ public class EconomyCashService {
         return "\nAdded " + amount + "$ to User: ";
     }
 
-    public String removeMoneyFromUser(Connection connection, Long id, Double amount) {
-        try {
+    public String removeMoneyFromUser(Long id, Double amount) {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "UPDATE cash SET balance=balance-? WHERE user_id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -57,8 +59,8 @@ public class EconomyCashService {
         return "\nRemoved " + amount + "$ from User: ";
     }
 
-    public void removeCashAccount(Connection connection, Long id) {
-        try {
+    public void removeCashAccount(Long id) {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "DELETE FROM cash WHERE user_id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -71,9 +73,9 @@ public class EconomyCashService {
         }
     }
 
-    public ResultSet returnCashAccount(Connection connection, Long id) {
+    public ResultSet returnCashAccount(Long id) {
         ResultSet res = null;
-        try {
+        try (Connection connection = EconomyAPI.connection) {
             String sql = "SELECT * FROM cash WHERE user_id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
