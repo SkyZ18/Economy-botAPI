@@ -7,11 +7,10 @@ import org.economy.config.SQLFileReader;
 import org.economy.connection.DatabaseConnection;
 import org.economy.models.JSON.JSONData;
 import org.economy.models.Metadata;
+import org.economy.models.ThreadRunner;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-import java.sql.SQLTimeoutException;
 
 public class EconomyAPI {
 
@@ -19,11 +18,12 @@ public class EconomyAPI {
     private static final SQLFileReader sqlReader = new SQLFileReader();
     private static final PasswordDecoder decoder = new PasswordDecoder();
     private static final JSONData obj = parser.readJSON();
-    public static Connection connection;
 
-    public static void main(String[] args) {}
+    public static void main(String[] args) {
+        run();
+    }
 
-    public static Connection run() {
+    public static void run() {
         System.out.println(FigletFont.convertOneLine("ECONOMY-API"));
 
         String url =
@@ -39,7 +39,7 @@ public class EconomyAPI {
         );
 
         try {
-            connection = dbConn.openConn();
+            Connection connection = dbConn.openConn();
             DatabaseMetaData data = connection.getMetaData();
 
             Metadata metadata = new Metadata(
@@ -58,7 +58,7 @@ public class EconomyAPI {
             sqlReader.runScript(connection, obj.getEnv().getPathToSql());
             System.out.println("\nAPI running");
 
-            return connection;
+            ThreadRunner.run(connection, dbConn);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
