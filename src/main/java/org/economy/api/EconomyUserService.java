@@ -1,6 +1,7 @@
 package org.economy.api;
 
-import org.economy.models.ThreadRunner;
+import org.economy.EconomyAPI;
+import org.economy.connection.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,8 +13,18 @@ public class EconomyUserService {
     private static final EconomyBankService ECONOMY_BANK_SERVICE = new EconomyBankService();
     private static final EconomyCashService ECONOMY_CASH_SERVICE = new EconomyCashService();
 
+    private static Connection connection = null;
+
+    public EconomyUserService() {
+        try {
+            connection = DatabaseConnection.openConn(EconomyAPI.url, EconomyAPI.user, EconomyAPI.password);
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+    }
+
     public String createUser(String dc_tag, String name) {
-        try (Connection connection = ThreadRunner.conn) {
+        try {
             String sql = "INSERT INTO users(id, dc_tag, name) VALUES (?,?,?)";
             String checkUserSql = "SELECT * FROM users WHERE dc_tag=?";
             String sqlId = "SELECT MAX(id) FROM users";
@@ -50,7 +61,7 @@ public class EconomyUserService {
 
     public ResultSet getAllUsers() {
         ResultSet res = null;
-        try (Connection connection = ThreadRunner.conn) {
+        try {
             String sql = "SELECT * FROM users";
 
             Statement stmt = connection.createStatement();
@@ -64,7 +75,7 @@ public class EconomyUserService {
 
     public ResultSet getUserById(Long id) {
         ResultSet res = null;
-        try (Connection connection = ThreadRunner.conn) {
+        try {
             String sql = "SELECT * FROM users WHERE id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -80,7 +91,7 @@ public class EconomyUserService {
 
     public ResultSet getUserByName(String name) {
         ResultSet res = null;
-        try (Connection connection = ThreadRunner.conn) {
+        try {
             String sql = "SELECT * FROM users WHERE name=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -96,7 +107,7 @@ public class EconomyUserService {
 
     public ResultSet getUserByTag(String tag) {
         ResultSet res = null;
-        try (Connection connection = ThreadRunner.conn) {
+        try {
             String sql = "SELECT * FROM users WHERE dc_tag=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -111,7 +122,7 @@ public class EconomyUserService {
     }
 
     public String removeUserAccount(Long id) {
-        try (Connection connection = ThreadRunner.conn) {
+        try {
             String sql = "DELETE FROM users WHERE id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);

@@ -1,6 +1,7 @@
 package org.economy.api;
 
-import org.economy.models.ThreadRunner;
+import org.economy.EconomyAPI;
+import org.economy.connection.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,8 +9,18 @@ import java.sql.ResultSet;
 
 public class EconomyCashService {
 
+    private static Connection connection = null;
+
+    public EconomyCashService() {
+        try {
+            connection = DatabaseConnection.openConn(EconomyAPI.url, EconomyAPI.user, EconomyAPI.password);
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+    }
+
     public String createAccount(Long id) {
-        try (Connection connection = ThreadRunner.conn) {
+        try {
             String sqlCash = "INSERT INTO cash(id, user_id, balance) VALUES(?,?,0)";
             String sqlIdCash = "SELECT MAX(id) FROM cash";
 
@@ -30,7 +41,7 @@ public class EconomyCashService {
     }
 
     public String addMoneyToUser(Long id, Double amount) {
-        try (Connection connection = ThreadRunner.conn) {
+        try {
             String sql = "UPDATE cash SET balance=balance+? WHERE user_id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -45,7 +56,7 @@ public class EconomyCashService {
     }
 
     public String removeMoneyFromUser(Long id, Double amount) {
-        try (Connection connection = ThreadRunner.conn) {
+        try {
             String sql = "UPDATE cash SET balance=balance-? WHERE user_id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -60,7 +71,7 @@ public class EconomyCashService {
     }
 
     public void removeCashAccount(Long id) {
-        try (Connection connection = ThreadRunner.conn) {
+        try {
             String sql = "DELETE FROM cash WHERE user_id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -75,7 +86,7 @@ public class EconomyCashService {
 
     public ResultSet returnCashAccount(Long id) {
         ResultSet res = null;
-        try (Connection connection = ThreadRunner.conn) {
+        try {
             String sql = "SELECT * FROM cash WHERE user_id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);

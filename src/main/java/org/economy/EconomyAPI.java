@@ -7,7 +7,6 @@ import org.economy.config.SQLFileReader;
 import org.economy.connection.DatabaseConnection;
 import org.economy.models.JSON.JSONData;
 import org.economy.models.Metadata;
-import org.economy.models.ThreadRunner;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -19,6 +18,14 @@ public class EconomyAPI {
     private static final PasswordDecoder decoder = new PasswordDecoder();
     private static final JSONData obj = parser.readJSON();
 
+    public static String url =
+            "jdbc:mariadb://"
+                    + obj.getEnv().getDb().getMariaDbHost()
+                    + obj.getEnv().getDb().getMariaDbPort()
+                    + obj.getEnv().getDb().getMariaDbDatabase();
+    public static String user = obj.getEnv().getDb().getMariaDbUser();
+    public static String password = obj.getEnv().getDb().getMariaDbPassword();
+
     public static void main(String[] args) {
         run();
     }
@@ -26,20 +33,13 @@ public class EconomyAPI {
     public static void run() {
         System.out.println(FigletFont.convertOneLine("ECONOMY-API"));
 
-        String url =
-                "jdbc:mariadb://"
-                        + obj.getEnv().getDb().getMariaDbHost()
-                        + obj.getEnv().getDb().getMariaDbPort()
-                        + obj.getEnv().getDb().getMariaDbDatabase();
-
-        DatabaseConnection dbConn = new DatabaseConnection(
-                url,
-                obj.getEnv().getDb().getMariaDbUser(),
-                decoder.decodePassword(obj.getEnv().getDb().getMariaDbPassword())
-        );
-
         try {
-            Connection connection = dbConn.openConn();
+            Connection connection = DatabaseConnection.openConn(
+                    url,
+                    user,
+                    decoder.decodePassword(password)
+            );
+
             DatabaseMetaData data = connection.getMetaData();
 
             Metadata metadata = new Metadata(
@@ -57,8 +57,6 @@ public class EconomyAPI {
             System.out.println(metadata.getMetadata());
             sqlReader.runScript(connection, obj.getEnv().getPathToSql());
             System.out.println("\nAPI running");
-
-            ThreadRunner.run(connection, dbConn);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
