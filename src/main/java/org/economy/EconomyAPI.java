@@ -44,7 +44,7 @@ public class EconomyAPI {
             new Thread(() -> {
                 try {
                     while (true) {
-                        if(!connection.isClosed()) {
+                        if(connection.isClosed()) {
                             connection = DatabaseConnection.openConn(url,user,password);
                         }
                     }
@@ -71,10 +71,6 @@ public class EconomyAPI {
             sqlReader.runScript(connection, obj.getEnv().getPathToSql());
 
             System.out.println("\nAPI running");
-
-            userService.getAllUsers().forEach(System.out::println);
-            userService.getAllUsers().forEach(System.out::println);
-            userService.getAllUsers().forEach(System.out::println);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
