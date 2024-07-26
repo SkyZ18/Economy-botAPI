@@ -70,7 +70,7 @@ public class EconomyAPI {
             System.out.println(metadata.getMetadata());
             sqlReader.runScript(connection, obj.getEnv().getPathToSql());
 
-            Logger.log("\nAPI running", Logger.LogType.INFO);
+            Logger.log("API running", Logger.LogType.INFO);
 
         } catch (Exception e) {
             throw new RuntimeException(e);

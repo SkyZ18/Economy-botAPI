@@ -29,7 +29,7 @@ public class SQLFileReader {
                 }
             }
 
-            Logger.log("\nSQL-Script executed", Logger.LogType.INFO);
+            Logger.log("SQL-Script executed", Logger.LogType.INFO);
 
         } catch (Exception e) {
             Logger.log("Error: " + e, Logger.LogType.ERROR);
