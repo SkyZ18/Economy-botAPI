@@ -1,7 +1,6 @@
 package org.economy.api;
 
 import org.economy.EconomyAPI;
-import org.economy.connection.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,16 +11,9 @@ public class EconomyBankService {
     private static final EconomyCashService ECONOMY_CASH_SERVICE = new EconomyCashService();
     private static Connection connection = null;
 
-    public EconomyBankService() {
-        try {
-            connection = DatabaseConnection.openConn(EconomyAPI.url, EconomyAPI.user, EconomyAPI.password);
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
-    }
-
     public String createBankAccount(Long id) {
         try {
+            connection = EconomyAPI.connection;
             String sql = "INSERT INTO bank(id, user_id, balance, loan) VALUES(?,?,300,null)";
             String sqlId = "SELECT MAX(id) FROM bank";
 
@@ -47,6 +39,7 @@ public class EconomyBankService {
     public ResultSet returnAccountOfUser(Long id) {
         ResultSet res = null;
         try {
+            connection = EconomyAPI.connection;
             String sql = "SELECT * FROM bank WHERE user_id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -63,6 +56,7 @@ public class EconomyBankService {
 
     public void removeBankAccount(Long id) {
         try {
+            connection = EconomyAPI.connection;
             String sql = "DELETE FROM bank WHERE user_id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -78,6 +72,7 @@ public class EconomyBankService {
 
     public String depositMoneyToAccount(Long id, Double amount) {
         try {
+            connection = EconomyAPI.connection;
             String sql = "UPDATE bank SET balance=balance+? WHERE user_id=?";
             String sqlBalance = "SELECT balance FROM cash WHERE user_id=?";
 
@@ -107,6 +102,7 @@ public class EconomyBankService {
 
     public String withdrawMoneyFromAccount(Long id, Double amount) {
         try {
+            connection = EconomyAPI.connection;
             String sql = "UPDATE bank SET balance=balance-? WHERE user_id=?";
             String sqlBalance = "SELECT balance FROM bank WHERE user_id=?";
 

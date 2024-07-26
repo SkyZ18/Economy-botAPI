@@ -1,6 +1,7 @@
 package org.economy;
 
 import com.github.lalyos.jfiglet.FigletFont;
+import org.economy.api.EconomyUserService;
 import org.economy.config.JSONParserService;
 import org.economy.config.PasswordDecoder;
 import org.economy.config.SQLFileReader;
@@ -26,6 +27,10 @@ public class EconomyAPI {
     public static String user = obj.getEnv().getDb().getMariaDbUser();
     public static String password = decoder.decodePassword(obj.getEnv().getDb().getMariaDbPassword());
 
+    public static Connection connection;
+
+    private static final EconomyUserService userService = new EconomyUserService();
+
     public static void main(String[] args) {
         run();
     }
@@ -34,11 +39,19 @@ public class EconomyAPI {
         System.out.println(FigletFont.convertOneLine("ECONOMY-API"));
 
         try {
-            Connection connection = DatabaseConnection.openConn(
-                    url,
-                    user,
-                    password
-            );
+            connection = DatabaseConnection.openConn(url,user,password);
+
+            new Thread(() -> {
+                try {
+                    while (true) {
+                        if(!connection.isClosed()) {
+                            connection = DatabaseConnection.openConn(url,user,password);
+                        }
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
 
             DatabaseMetaData data = connection.getMetaData();
 
@@ -56,7 +69,12 @@ public class EconomyAPI {
 
             System.out.println(metadata.getMetadata());
             sqlReader.runScript(connection, obj.getEnv().getPathToSql());
+
             System.out.println("\nAPI running");
+
+            userService.getAllUsers().forEach(System.out::println);
+            userService.getAllUsers().forEach(System.out::println);
+            userService.getAllUsers().forEach(System.out::println);
 
         } catch (Exception e) {
             throw new RuntimeException(e);

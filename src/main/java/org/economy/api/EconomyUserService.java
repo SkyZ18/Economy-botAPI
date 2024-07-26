@@ -1,30 +1,25 @@
 package org.economy.api;
 
 import org.economy.EconomyAPI;
-import org.economy.connection.DatabaseConnection;
+import org.economy.models.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EconomyUserService {
 
     private static final EconomyBankService ECONOMY_BANK_SERVICE = new EconomyBankService();
     private static final EconomyCashService ECONOMY_CASH_SERVICE = new EconomyCashService();
 
-    private static Connection connection = null;
-
-    public EconomyUserService() {
-        try {
-            connection = DatabaseConnection.openConn(EconomyAPI.url, EconomyAPI.user, EconomyAPI.password);
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
-    }
+    private static Connection connection;
 
     public String createUser(String dc_tag, String name) {
         try {
+            connection = EconomyAPI.connection;
             String sql = "INSERT INTO users(id, dc_tag, name) VALUES (?,?,?)";
             String checkUserSql = "SELECT * FROM users WHERE dc_tag=?";
             String sqlId = "SELECT MAX(id) FROM users";
@@ -59,39 +54,56 @@ public class EconomyUserService {
         return "\nFailed";
     }
 
-    public ResultSet getAllUsers() {
-        ResultSet res = null;
+    public List<User> getAllUsers() {
+        List<User> userList = new ArrayList<>();
         try {
+            connection = EconomyAPI.connection;
             String sql = "SELECT * FROM users";
 
             Statement stmt = connection.createStatement();
+            ResultSet res = stmt.executeQuery(sql);
 
-            res = stmt.executeQuery(sql);
+            while (res.next()) {
+                User user = User.builder()
+                        .id(res.getLong(1))
+                        .dc_tag(res.getString(2))
+                        .name(res.getString(3))
+                        .build();
+                userList.add(user);
+            }
         } catch (Exception e) {
             System.out.println("Error: " + e);
         }
-        return res;
+        return userList;
     }
 
-    public ResultSet getUserById(Long id) {
-        ResultSet res = null;
+    public User getUserById(Long id) {
+        User user = new User();
         try {
+            connection = EconomyAPI.connection;
             String sql = "SELECT * FROM users WHERE id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
 
             pstmt.setLong(1, id);
 
-            res = pstmt.executeQuery();
+            ResultSet res = pstmt.executeQuery();
+            res.next();
+
+            user.setId(res.getLong(1));
+            user.setDc_tag(res.getString(2));
+            user.setName(res.getString(3));
+
         } catch (Exception e) {
             System.out.println("Error: " + e);
         }
-        return res;
+        return user;
     }
 
     public ResultSet getUserByName(String name) {
         ResultSet res = null;
         try {
+            connection = EconomyAPI.connection;
             String sql = "SELECT * FROM users WHERE name=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -108,6 +120,7 @@ public class EconomyUserService {
     public ResultSet getUserByTag(String tag) {
         ResultSet res = null;
         try {
+            connection = EconomyAPI.connection;
             String sql = "SELECT * FROM users WHERE dc_tag=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -123,6 +136,7 @@ public class EconomyUserService {
 
     public String removeUserAccount(Long id) {
         try {
+            connection = EconomyAPI.connection;
             String sql = "DELETE FROM users WHERE id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
