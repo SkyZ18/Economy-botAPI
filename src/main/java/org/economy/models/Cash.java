@@ -17,9 +17,7 @@ public class Cash {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user_id;
+    private Long user_id;
 
     private Double balance;
 }

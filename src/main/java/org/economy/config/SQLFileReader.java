@@ -24,15 +24,15 @@ public class SQLFileReader {
                     try {
                         stmt.execute(sql);
                     } catch (Exception e) {
-                        System.out.println("Error: " + e);
+                        Logger.log("Error: " + e, Logger.LogType.ERROR);
                     }
                 }
             }
 
-            System.out.println("\nSQL-Script executed");
+            Logger.log("\nSQL-Script executed", Logger.LogType.INFO);
 
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
     }
 }

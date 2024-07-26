@@ -1,6 +1,8 @@
 package org.economy.api;
 
 import org.economy.EconomyAPI;
+import org.economy.config.Logger;
+import org.economy.models.Bank;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +13,7 @@ public class EconomyBankService {
     private static final EconomyCashService ECONOMY_CASH_SERVICE = new EconomyCashService();
     private static Connection connection = null;
 
-    public String createBankAccount(Long id) {
+    public void createBankAccount(Long id) {
         try {
             connection = EconomyAPI.connection;
             String sql = "INSERT INTO bank(id, user_id, balance, loan) VALUES(?,?,300,null)";
@@ -27,17 +29,17 @@ public class EconomyBankService {
 
                 pstmt.executeUpdate();
 
-                return "\nSuccessfully created bank-account";
+                Logger.log("Created bank-account", Logger.LogType.INFO);
             }
 
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
-        return "\nBank-account already exists";
+        Logger.log("Bank-account already exists", Logger.LogType.ERROR);
     }
 
-    public ResultSet returnAccountOfUser(Long id) {
-        ResultSet res = null;
+    public Bank returnAccountOfUser(Long id) {
+        Bank bank = new Bank();
         try {
             connection = EconomyAPI.connection;
             String sql = "SELECT * FROM bank WHERE user_id=?";
@@ -46,12 +48,18 @@ public class EconomyBankService {
 
             pstmt.setLong(1, id);
 
-            res = pstmt.executeQuery();
+            ResultSet res = pstmt.executeQuery();
+            res.next();
+
+            bank.setId(res.getLong(1));
+            bank.setUser_id(res.getLong(2));
+            bank.setBalance(res.getDouble(3));
+            bank.setLoan(res.getDouble(4));
 
         } catch (Exception e) {
             System.out.println("Error: " + e);
         }
-        return res;
+        return bank;
     }
 
     public void removeBankAccount(Long id) {
@@ -64,13 +72,14 @@ public class EconomyBankService {
             pstmt.setLong(1, id);
 
             pstmt.executeUpdate();
+            Logger.log("Created bank-account", Logger.LogType.INFO);
 
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
     }
 
-    public String depositMoneyToAccount(Long id, Double amount) {
+    public void depositMoneyToAccount(Long id, Double amount) {
         try {
             connection = EconomyAPI.connection;
             String sql = "UPDATE bank SET balance=balance+? WHERE user_id=?";
@@ -90,17 +99,14 @@ public class EconomyBankService {
                 pstmt.executeUpdate();
 
                 ECONOMY_CASH_SERVICE.removeMoneyFromUser(id, amount);
-
-                return "\nDeposited " + amount + "$";
             }
 
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
-        return "\nNot enough money";
     }
 
-    public String withdrawMoneyFromAccount(Long id, Double amount) {
+    public void withdrawMoneyFromAccount(Long id, Double amount) {
         try {
             connection = EconomyAPI.connection;
             String sql = "UPDATE bank SET balance=balance-? WHERE user_id=?";
@@ -120,31 +126,10 @@ public class EconomyBankService {
                 pstmt.executeUpdate();
 
                 ECONOMY_CASH_SERVICE.addMoneyToUser(id, amount);
-
-                return "\nWithdraw " + amount + "$";
             }
 
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
-        return "\nNot enough money on account";
     }
-
-    public void printAccount(ResultSet resultSet) {
-        try {
-            resultSet.next();
-            System.out.println("\n--------------BANK-------------");
-            System.out.println("BANK-" + resultSet.getLong(1) + ": "
-                    + "\n user_id: " + resultSet.getLong(2)
-                    + "\n balance: " + resultSet.getDouble(3) + "$"
-                    + "\n loan: " + resultSet.getDouble(4) + "$"
-            );
-            System.out.println("-------------------------------");
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
-
-    }
-
 }

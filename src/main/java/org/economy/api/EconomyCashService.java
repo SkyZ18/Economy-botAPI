@@ -1,6 +1,9 @@
 package org.economy.api;
 
+import org.checkerframework.checker.units.qual.C;
 import org.economy.EconomyAPI;
+import org.economy.config.Logger;
+import org.economy.models.Cash;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +13,7 @@ public class EconomyCashService {
 
     private static Connection connection = null;
 
-    public String createAccount(Long id) {
+    public void createAccount(Long id) {
         try {
             connection = EconomyAPI.connection;
             String sqlCash = "INSERT INTO cash(id, user_id, balance) VALUES(?,?,0)";
@@ -25,14 +28,15 @@ public class EconomyCashService {
 
             pstmt.executeUpdate();
 
-            return "\nCreated cash-account";
+            Logger.log("Created cash-account", Logger.LogType.INFO);
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
+
         }
-        return "\nCash-account already exists";
+        Logger.log("Cash-account already exists", Logger.LogType.ERROR);
     }
 
-    public String addMoneyToUser(Long id, Double amount) {
+    public void addMoneyToUser(Long id, Double amount) {
         try {
             connection = EconomyAPI.connection;
             String sql = "UPDATE cash SET balance=balance+? WHERE user_id=?";
@@ -42,13 +46,13 @@ public class EconomyCashService {
             pstmt.setLong(2, id);
 
             pstmt.executeUpdate();
+            Logger.log("Added money to user", Logger.LogType.INFO);
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
-        return "\nAdded " + amount + "$ to User: ";
     }
 
-    public String removeMoneyFromUser(Long id, Double amount) {
+    public void removeMoneyFromUser(Long id, Double amount) {
         try {
             connection = EconomyAPI.connection;
             String sql = "UPDATE cash SET balance=balance-? WHERE user_id=?";
@@ -58,10 +62,10 @@ public class EconomyCashService {
             pstmt.setLong(2, id);
 
             pstmt.executeUpdate();
+            Logger.log("Removed money from user", Logger.LogType.INFO);
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
-        return "\nRemoved " + amount + "$ from User: ";
     }
 
     public void removeCashAccount(Long id) {
@@ -74,13 +78,14 @@ public class EconomyCashService {
             pstmt.setLong(1, id);
 
             pstmt.executeUpdate();
+            Logger.log("Deleted Cash-Account", Logger.LogType.INFO);
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
     }
 
-    public ResultSet returnCashAccount(Long id) {
-        ResultSet res = null;
+    public Cash returnCashAccount(Long id) {
+        Cash cash = new Cash();
         try {
             connection = EconomyAPI.connection;
             String sql = "SELECT * FROM cash WHERE user_id=?";
@@ -89,27 +94,16 @@ public class EconomyCashService {
 
             pstmt.setLong(1, id);
 
-            res = pstmt.executeQuery();
+            ResultSet res = pstmt.executeQuery();
+            res.next();
+
+            cash.setId(res.getLong(1));
+            cash.setUser_id(res.getLong(2));
+            cash.setBalance(res.getDouble(3));
 
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
-        return res;
-    }
-
-    public void printCash(ResultSet resultSet) {
-        try {
-            System.out.println("\n--------------CASH-------------");
-            while (resultSet.next()) {
-                System.out.println("CASH-" + resultSet.getLong(1) + ": "
-                        + "\n user_id: " + resultSet.getLong(2)
-                        + "\n balance: " + resultSet.getDouble(3) + "$"
-                );
-            }
-            System.out.println("-------------------------------");
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
-
+        return cash;
     }
 }

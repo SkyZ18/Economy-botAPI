@@ -1,6 +1,7 @@
 package org.economy.api;
 
 import org.economy.EconomyAPI;
+import org.economy.config.Logger;
 import org.economy.models.User;
 
 import java.sql.Connection;
@@ -17,7 +18,7 @@ public class EconomyUserService {
 
     private static Connection connection;
 
-    public String createUser(String dc_tag, String name) {
+    public void createUser(String dc_tag, String name) {
         try {
             connection = EconomyAPI.connection;
             String sql = "INSERT INTO users(id, dc_tag, name) VALUES (?,?,?)";
@@ -42,16 +43,14 @@ public class EconomyUserService {
                 ECONOMY_CASH_SERVICE.createAccount(userId.getLong(1) + 1);
                 ECONOMY_BANK_SERVICE.createBankAccount(userId.getLong(1) + 1);
 
-                return "\nSuccessfully created user";
+                Logger.log("Successfully created user", Logger.LogType.INFO);
             } else {
-                return "\nUser already exists";
+                Logger.log("Error in creating user", Logger.LogType.ERROR);
             }
 
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error in creating user", Logger.LogType.ERROR);
         }
-
-        return "\nFailed";
     }
 
     public List<User> getAllUsers() {
@@ -72,7 +71,7 @@ public class EconomyUserService {
                 userList.add(user);
             }
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
         return userList;
     }
@@ -95,13 +94,13 @@ public class EconomyUserService {
             user.setName(res.getString(3));
 
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
         return user;
     }
 
-    public ResultSet getUserByName(String name) {
-        ResultSet res = null;
+    public User getUserByName(String name) {
+        User user = new User();
         try {
             connection = EconomyAPI.connection;
             String sql = "SELECT * FROM users WHERE name=?";
@@ -110,15 +109,21 @@ public class EconomyUserService {
 
             pstmt.setString(1, name);
 
-            res = pstmt.executeQuery();
+            ResultSet res = pstmt.executeQuery();
+            res.next();
+
+            user.setId(res.getLong(1));
+            user.setDc_tag(res.getString(2));
+            user.setName(res.getString(3));
+
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
-        return res;
+        return user;
     }
 
-    public ResultSet getUserByTag(String tag) {
-        ResultSet res = null;
+    public User getUserByTag(String tag) {
+        User user = new User();
         try {
             connection = EconomyAPI.connection;
             String sql = "SELECT * FROM users WHERE dc_tag=?";
@@ -127,14 +132,20 @@ public class EconomyUserService {
 
             pstmt.setString(1, tag);
 
-            res = pstmt.executeQuery();
+            ResultSet res = pstmt.executeQuery();
+            res.next();
+
+            user.setId(res.getLong(1));
+            user.setDc_tag(res.getString(2));
+            user.setName(res.getString(3));
+
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
-        return res;
+        return user;
     }
 
-    public String removeUserAccount(Long id) {
+    public void removeUserAccount(Long id) {
         try {
             connection = EconomyAPI.connection;
             String sql = "DELETE FROM users WHERE id=?";
@@ -145,28 +156,9 @@ public class EconomyUserService {
 
             pstmt.executeUpdate();
 
-            return "\nSuccessfully removed user";
+            Logger.log("Successfully removed user", Logger.LogType.INFO);
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            Logger.log("Error: " + e, Logger.LogType.ERROR);
         }
-
-        return "\nFailed";
     }
-
-    public void printAllUsers(ResultSet resultSet) {
-        try {
-            System.out.println("\n--------------USER-------------");
-            while (resultSet.next()) {
-                System.out.println("USER-" + resultSet.getLong(1) + ": "
-                        + "\n dc-tag: " + resultSet.getString(2)
-                        + "\n name: " + resultSet.getString(3)
-                );
-            }
-            System.out.println("-------------------------------");
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
-
-    }
-
 }
