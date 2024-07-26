@@ -24,7 +24,7 @@ public class EconomyAPI {
                     + obj.getEnv().getDb().getMariaDbPort()
                     + obj.getEnv().getDb().getMariaDbDatabase();
     public static String user = obj.getEnv().getDb().getMariaDbUser();
-    public static String password = obj.getEnv().getDb().getMariaDbPassword();
+    public static String password = decoder.decodePassword(obj.getEnv().getDb().getMariaDbPassword());
 
     public static void main(String[] args) {
         run();
@@ -37,7 +37,7 @@ public class EconomyAPI {
             Connection connection = DatabaseConnection.openConn(
                     url,
                     user,
-                    decoder.decodePassword(password)
+                    password
             );
 
             DatabaseMetaData data = connection.getMetaData();
