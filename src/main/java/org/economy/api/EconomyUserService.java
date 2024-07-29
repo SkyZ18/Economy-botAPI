@@ -154,6 +154,9 @@ public class EconomyUserService {
 
             pstmt.setLong(1, id);
 
+            ECONOMY_BANK_SERVICE.removeBankAccount(id);
+            ECONOMY_CASH_SERVICE.removeCashAccount(id);
+
             pstmt.executeUpdate();
 
             Logger.log("Successfully removed user", Logger.LogType.INFO);

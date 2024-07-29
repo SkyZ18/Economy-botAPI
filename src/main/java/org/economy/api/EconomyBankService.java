@@ -72,7 +72,7 @@ public class EconomyBankService {
             pstmt.setLong(1, id);
 
             pstmt.executeUpdate();
-            Logger.log("Created bank-account", Logger.LogType.INFO);
+            Logger.log("Deleted bank-account", Logger.LogType.INFO);
 
         } catch (Exception e) {
             Logger.log("Error: " + e, Logger.LogType.ERROR);
