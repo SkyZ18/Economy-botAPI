@@ -18,34 +18,30 @@ public class EconomyUserService {
 
     private static Connection connection;
 
-    public void createUser(String dc_tag, String name) {
+    public void createUser(Long id, String dc_tag, String name) {
         try {
             connection = EconomyAPI.connection;
             String sql = "INSERT INTO users(id, dc_tag, name) VALUES (?,?,?)";
-            String checkUserSql = "SELECT * FROM users WHERE dc_tag=?";
-            String sqlId = "SELECT MAX(id) FROM users";
+            String checkUserSql = "SELECT * FROM users WHERE id=?";
 
             PreparedStatement pstmt = connection.prepareStatement(checkUserSql);
-            pstmt.setString(1, dc_tag);
+            pstmt.setLong(1, id);
 
             if(!pstmt.executeQuery().next()) {
-                ResultSet userId = connection.createStatement().executeQuery(sqlId);
-                userId.next();
-
                 pstmt = connection.prepareStatement(sql);
 
-                pstmt.setLong(1, userId.getLong(1) + 1);
+                pstmt.setLong(1, id);
                 pstmt.setString(2, dc_tag);
                 pstmt.setString(3, name);
 
                 pstmt.executeUpdate();
 
-                ECONOMY_CASH_SERVICE.createAccount(userId.getLong(1) + 1);
-                ECONOMY_BANK_SERVICE.createBankAccount(userId.getLong(1) + 1);
+                ECONOMY_CASH_SERVICE.createAccount(id);
+                ECONOMY_BANK_SERVICE.createBankAccount(id);
 
                 Logger.log("Successfully created user", Logger.LogType.INFO);
             } else {
-                Logger.log("Error in creating user", Logger.LogType.ERROR);
+                Logger.log("User already exists", Logger.LogType.ERROR);
             }
 
         } catch (Exception e) {
